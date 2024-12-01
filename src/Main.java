@@ -4,34 +4,60 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 public class Main {
-    private static final String CONTENT_PATH = "content";
+    private static final String INPUT_PATH = "input";
+    private static final String OUTPUT_PATH = "output";
+
+    private static final String CYCLIC_DEPENDENCIES_ERROR = "Error: files has cyclic dependencies:";
+    private static final String ORDERED_FILES_MESSAGE = "Ordered files:";
 
     public static void main(String[] args) {
-        Path contentPath = Paths.get(CONTENT_PATH);
         ArrayList<Path> rawFiles;
 
         try {
-            rawFiles = getFiles(contentPath);
+            rawFiles = getFiles(getInputPath(args));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         Collections.sort(rawFiles);
 
-        HashMap<Path, ArrayList<Path>> dependencies = getDependencies(rawFiles, contentPath);
+        HashMap<Path, ArrayList<Path>> dependencies = getDependencies(rawFiles, getInputPath(args));
 
         ArrayList<PathsPair> cyclicDependencies = getCyclicDependencies(dependencies);
         if (!cyclicDependencies.isEmpty()) {
-            // TODO error
+            printCyclicDependenciesError(cyclicDependencies);
+            return;
         }
 
         var orderedFiles = orderFiles(dependencies, rawFiles);
-
-        // TODO output
-        orderedFiles.forEach(System.out::println);
+        printOrderedFiles(orderedFiles, getInputPath(args));
     }
 
     private record PathsPair(Path a, Path b) { }
+
+    private static Path getInputPath(String[] args) {
+        if (args.length > 0) {
+            return Paths.get(args[0]);
+        } else {
+            return Paths.get(INPUT_PATH);
+        }
+    }
+
+    private static void printOrderedFiles(SequencedSet<Path> orderedFiles, Path inputPath) {
+        StringBuilder stringBuilder = new StringBuilder(ORDERED_FILES_MESSAGE);
+        for (Path file : orderedFiles) {
+            stringBuilder.append(String.format("\n%s", inputPath.relativize(file)));
+        }
+        System.out.println(stringBuilder);
+    }
+
+    private static void printCyclicDependenciesError(ArrayList<PathsPair> cyclicDependencies) {
+        StringBuilder stringBuilder = new StringBuilder(CYCLIC_DEPENDENCIES_ERROR);
+        for (PathsPair cyclicDependency : cyclicDependencies) {
+            stringBuilder.append(String.format("\n%s -> %s", cyclicDependency.a, cyclicDependency.b));
+        }
+        System.out.println(stringBuilder);
+    }
 
     private static SequencedSet<Path> orderFiles(HashMap<Path, ArrayList<Path>> dependencies, ArrayList<Path> rawFiles) {
         for (Map.Entry<Path, ArrayList<Path>> entry : dependencies.entrySet()) {
