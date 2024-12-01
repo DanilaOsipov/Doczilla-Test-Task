@@ -5,35 +5,48 @@ import java.util.*;
 
 public class Main {
     private static final String INPUT_PATH = "input";
-    private static final String OUTPUT_PATH = "output";
+    private static final String OUTPUT_PATH = "output/output.txt";
 
     private static final String CYCLIC_DEPENDENCIES_ERROR = "Error: files has cyclic dependencies:";
     private static final String ORDERED_FILES_MESSAGE = "Ordered files:";
 
     public static void main(String[] args) {
-        ArrayList<Path> rawFiles;
-
-        try {
-            rawFiles = getFiles(getInputPath(args));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        ArrayList<Path> rawFiles = getFiles(getInputPath(args));
         Collections.sort(rawFiles);
-
         HashMap<Path, ArrayList<Path>> dependencies = getDependencies(rawFiles, getInputPath(args));
-
         ArrayList<PathsPair> cyclicDependencies = getCyclicDependencies(dependencies);
+
         if (!cyclicDependencies.isEmpty()) {
-            printCyclicDependenciesError(cyclicDependencies);
+            printCyclicDependenciesError(cyclicDependencies, getInputPath(args));
             return;
         }
 
         var orderedFiles = orderFiles(dependencies, rawFiles);
         printOrderedFiles(orderedFiles, getInputPath(args));
+        writeOrderedFiles(orderedFiles, getOutputPath(args));
     }
 
     private record PathsPair(Path a, Path b) { }
+
+    private static void writeOrderedFiles(SequencedSet<Path> orderedFiles, Path outputPath) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(outputPath.toString())) {
+            for (Path file : orderedFiles) {
+                byte[] bytes = Files.readAllBytes(file);
+                fileOutputStream.write(bytes);
+                fileOutputStream.write("\n\n".getBytes());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Path getOutputPath(String[] args) {
+        if (args.length > 1) {
+            return Paths.get(args[1]);
+        } else {
+            return Paths.get(OUTPUT_PATH);
+        }
+    }
 
     private static Path getInputPath(String[] args) {
         if (args.length > 0) {
@@ -51,10 +64,10 @@ public class Main {
         System.out.println(stringBuilder);
     }
 
-    private static void printCyclicDependenciesError(ArrayList<PathsPair> cyclicDependencies) {
+    private static void printCyclicDependenciesError(ArrayList<PathsPair> cyclicDependencies, Path inputPath) {
         StringBuilder stringBuilder = new StringBuilder(CYCLIC_DEPENDENCIES_ERROR);
         for (PathsPair cyclicDependency : cyclicDependencies) {
-            stringBuilder.append(String.format("\n%s -> %s", cyclicDependency.a, cyclicDependency.b));
+            stringBuilder.append(String.format("\n%s -> %s", inputPath.relativize(cyclicDependency.a), inputPath.relativize(cyclicDependency.b)));
         }
         System.out.println(stringBuilder);
     }
@@ -124,18 +137,22 @@ public class Main {
         }
     }
 
-    private static ArrayList<Path> getFiles(Path rootPath) throws IOException {
+    private static ArrayList<Path> getFiles(Path rootPath) {
         var files = new ArrayList<Path>();
 
-        Files.walkFileTree(rootPath, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (!Files.isDirectory(file)) {
-                    files.add(file);
+        try {
+            Files.walkFileTree(rootPath, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    if (!Files.isDirectory(file)) {
+                        files.add(file);
+                    }
+                    return FileVisitResult.CONTINUE;
                 }
-                return FileVisitResult.CONTINUE;
-            }
-        });
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return files;
     }
