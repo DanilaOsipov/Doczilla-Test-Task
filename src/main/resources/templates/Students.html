@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Students</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="Students.js"></script>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+    <form id="addStudentForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required placeholder="Enter name"><br>
+
+        <label for="surname">Surname:</label><br>
+        <input type="text" id="surname" name="surname" required placeholder="Enter surname"><br>
+
+        <label for="patronymic">Patronymic:</label><br>
+        <input type="text" id="patronymic" name="patronymic" placeholder="Enter patronymic"><br>
+
+        <label for="birthDate">Birthdate:</label><br>
+        <input type="date" id="birthDate" name="birthDate" required><br>
+
+        <label for="group">Group:</label><br>
+        <input type="text" id="group" name="group" required placeholder="Enter group"><br>
+        <br>
+        <input type="submit" value="Add">
+    </form>
+    <br>
+    <br>
+    <br>
+    <form id="deleteStudentForm">
+        <label for="id">Id:</label><br>
+        <input type="number" min="0" step="1" id="id" name="id" required placeholder="Enter Id"><br>
+        <br>
+        <input type="submit" value="Delete">
+    </form>
+    <br>
+    <br>
+    <br>
+    <table id="studentsTable">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Patronymic</th>
+            <th>Birthdate</th>
+            <th>Group</th>
+        </tr>
+    </table>
+</body>
+</html>
