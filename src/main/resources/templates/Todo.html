@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo List</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.14.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js"></script>
+    <script src="Todo.js"></script>
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+    <div class="searchbar">
+        <input type="text" id="search" placeholder="Поиск">
+        <button type="button" id="today">Сегодня</button>
+        <button type="button" id="week">На неделю</button>
+        <input type="text" id="startDate" placeholder="Начиная с даты">
+        <input type="text" id="endDate" placeholder="Заканчивая датой">
+
+        <input type="checkbox" id="incompleteOnly">
+        <label for="incompleteOnly">Только невыполненные</label>
+    </div>
+
+    <div class="main">
+        <table id="tasks">
+            <tr>
+                <th id="name">Название</th>
+                <th id="shortDesc">Описание</th>
+                <th id="date">Дата</th>
+                <th id="status">Статус</th>
+            </tr>
+        </table>
+    </div>
+
+    <div id="dialog" title="Название">
+        <p id="dialogStatus"></p>
+        <p id="dialogDate"></p>
+        <p id="fullDesc"></p>
+    </div>
+</body>
+</html>
