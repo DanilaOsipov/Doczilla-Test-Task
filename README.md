@@ -21,3 +21,9 @@
 Для запуска в командной строке перейти в папку проекта через `cd` и собрать его через `mvn spring-boot:run`. Затем открыть браузер и перейти на http://localhost:8080/.
 
 Сортировка задач по дате осуществляется по нажатию на заголовок соответствующего столбца.
+
+## Системные требования
+
+- PostgreSQL (https://www.postgresql.org/download/)
+- Apache Maven (https://maven.apache.org/download.cgi)
+- JDK (https://www.oracle.com/java/technologies/downloads/)
